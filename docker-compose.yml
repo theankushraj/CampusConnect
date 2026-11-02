@@ -1,0 +1,51 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: campusconnect
+      MYSQL_USER: campus
+      MYSQL_PASSWORD: campus
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ucampus", "-pcampus"]
+      interval: 8s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.example
+    environment:
+      FLASK_ENV: production
+      SEED_DEMO_DATA: "true"
+      DATABASE_URL: mysql+pymysql://campus:campus@mysql:3306/campusconnect
+      FRONTEND_URL: http://localhost:3000
+      UPLOAD_DIR: /app/uploads
+      USE_S3: "false"
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  uploads_data:

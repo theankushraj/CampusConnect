@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS campusconnect CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'campus'@'%' IDENTIFIED BY 'campus';
+GRANT ALL PRIVILEGES ON campusconnect.* TO 'campus'@'%';
+FLUSH PRIVILEGES;
