@@ -1,17 +1,13 @@
-FROM python:3.11-slim
-
+FROM node:20-alpine
 WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc default-libmysqlclient-dev pkg-config \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-RUN mkdir -p /app/uploads/banners
-
+COPY backend/package.json backend/package-lock.json* ./
+RUN npm install
+COPY backend/tsconfig.json ./
+COPY backend/src ./src
+COPY frontend /frontend
+RUN npx tsc
+ENV PORT=5000
+ENV NODE_ENV=production
+ENV FRONTEND_DIR=/frontend
 EXPOSE 5000
-
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "60", "wsgi:app"]
+CMD ["node", "dist/index.js"]

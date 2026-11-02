@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in · CampusConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <main class="wrap" style="max-width:460px; padding-top:80px">
+      <a class="brand" href="/" style="font-size:28px">CampusConnect</a>
+      <h1>Sign in</h1>
+      <p class="muted">Use a campus email and password to open your dashboard.</p>
+      <form id="form" style="margin-top:24px">
+        <div id="error" class="error hidden"></div>
+        <label>Email <input name="email" type="email" value="student@campusconnect.edu" required /></label>
+        <label>Password <input name="password" type="password" value="Campus@123" required /></label>
+        <button class="btn" type="submit">Continue</button>
+      </form>
+      <p class="muted">New here? <a href="/register.html"><u>Create an account</u></a></p>
+    </main>
+    <script src="/js/api.js"></script>
+    <script>
+      document.getElementById("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const err = document.getElementById("error");
+        err.classList.add("hidden");
+        const fd = new FormData(e.target);
+        try {
+          const data = await api.post("/auth/login", { email: fd.get("email"), password: fd.get("password") });
+          api.setSession(data.access_token, data.user);
+          location.href = "/app.html";
+        } catch (ex) {
+          err.textContent = ex.message;
+          err.classList.remove("hidden");
+        }
+      });
+    </script>
+  </body>
+</html>

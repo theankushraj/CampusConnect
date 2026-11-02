@@ -1,90 +1,56 @@
 # CampusConnect
 
-Cloud-based college event management and registration system. Students discover campus events, register and receive QR tickets. Organizers publish events and scan attendance. Administrators approve events and monitor participation.
+College event management: publish events, register with QR tickets, scan attendance.
 
-**Stack:** React.js · Flask · MySQL · Docker · AWS (EC2, RDS, S3, ECR, CloudWatch, IAM, VPC)
+**Backend:** Node.js + TypeScript (Express, JWT, bcrypt, MySQL)  
+**Frontend:** HTML, CSS, and JavaScript (no React)
 
-## What is implemented
-
-| Module | Behaviour |
-| --- | --- |
-| Authentication | Register/login with bcrypt hashes, JWT sessions, role-based access |
-| Event management | Create, edit, banners, capacity, deadlines, admin approve/reject |
-| Registration | Capacity checks, unique `(user, event)` constraint |
-| QR ticketing | Unpredictable token + server-generated QR image |
-| Attendance | Scan or paste token, reject duplicates |
-| Analytics | Role-specific dashboards and event fill/attendance rates |
-| Notifications | Registration, approval and check-in messages |
-
-## Demo accounts (seeded)
+## Demo accounts
 
 | Role | Email | Password |
 | --- | --- | --- |
 | Student | `student@campusconnect.edu` | `Campus@123` |
 | Organizer | `organizer@campusconnect.edu` | `Campus@123` |
-| Administrator | `admin@campusconnect.edu` | `Admin@123` |
+| Admin | `admin@campusconnect.edu` | `Admin@123` |
 
-## Run with Docker (recommended)
+## Run locally
+
+1. Start MySQL (Docker):
+
+```bash
+docker compose up mysql -d
+```
+
+2. API + static frontend:
+
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+Open **http://localhost:3000**
+
+macOS often occupies port 5000 (AirPlay), so the API uses **5001**.
+
+## Run everything with Docker
 
 ```bash
 docker compose up --build
 ```
 
-- App: http://localhost:3000
-- API: http://localhost:5000/api/health
+App: **http://localhost:3000**
 
-The Compose file starts MySQL, a Gunicorn Flask API and an nginx frontend. Application tables are created on first boot and demo data is seeded once.
+## Deploy on AWS
 
-## Local development (without Docker frontend)
+See `docs/AWS_DEPLOYMENT.md`. Short version: RDS MySQL + one EC2 VM running the `app` container, optional S3 for banners, CloudWatch for logs.
 
-1. Start MySQL (Compose `mysql` service is enough): `docker compose up mysql`
-2. Backend:
+## Project layout
 
-```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-export DATABASE_URL=mysql+pymysql://campus:campus@127.0.0.1:3306/campusconnect
-python wsgi.py
-# Local API listens on port 5001 (macOS often occupies 5000).
-# Docker Compose still publishes the API on port 5000.
 ```
-
-If MySQL is not running, SQLite works for a local demo:
-
-```bash
-export DATABASE_URL=sqlite:///campusconnect.db
-python wsgi.py
+backend/src/     TypeScript API
+frontend/        HTML, CSS, JS
+mysql/           database init
+docs/            architecture and AWS notes
 ```
-
-3. Frontend:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Vite proxies `/api` to `http://localhost:5000`.
-
-## Tests and load measurement
-
-```bash
-cd backend
-pytest
-locust -f locustfile.py --host http://localhost:5000
-```
-
-Record **your** Locust/JMeter numbers in the report. Do not copy example SLA figures from the project plan.
-
-## Academic documents
-
-- [Architecture and request flow](docs/ARCHITECTURE.md)
-- [AWS deployment and evidence checklist](docs/AWS_DEPLOYMENT.md)
-- [SLA, monitoring and performance testing](docs/TESTING_AND_SLA.md)
-- [Results section template](docs/RESULTS_TEMPLATE.md)
-
-## Security notes
-
-Passwords are hashed. QR tokens are validated only on the server. SQL uses SQLAlchemy parameters. Uploads are type-checked. Secrets belong in environment variables, not in git.

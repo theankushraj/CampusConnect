@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register · CampusConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <main class="wrap" style="max-width:460px; padding-top:60px">
+      <a class="brand" href="/" style="font-size:28px">CampusConnect</a>
+      <h1>Create an account</h1>
+      <form id="form" style="margin-top:24px">
+        <div id="error" class="error hidden"></div>
+        <label>Full name <input name="name" required /></label>
+        <label>Email <input name="email" type="email" required /></label>
+        <label>Password <input name="password" type="password" minlength="8" required /></label>
+        <label>Department <input name="department" /></label>
+        <label>Role
+          <select name="role">
+            <option value="student">Student</option>
+            <option value="organizer">Event organizer</option>
+          </select>
+        </label>
+        <button class="btn" type="submit">Register</button>
+      </form>
+      <p class="muted">Already registered? <a href="/login.html"><u>Sign in</u></a></p>
+    </main>
+    <script src="/js/api.js"></script>
+    <script>
+      document.getElementById("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const err = document.getElementById("error");
+        err.classList.add("hidden");
+        const fd = new FormData(e.target);
+        try {
+          const data = await api.post("/auth/register", Object.fromEntries(fd.entries()));
+          api.setSession(data.access_token, data.user);
+          location.href = "/app.html";
+        } catch (ex) {
+          err.textContent = ex.message;
+          err.classList.remove("hidden");
+        }
+      });
+    </script>
+  </body>
+</html>
