@@ -3,7 +3,7 @@
 College event management: publish events, register with QR tickets, scan attendance.
 
 **Backend:** Node.js + TypeScript (Express, JWT, bcrypt, MySQL)  
-**Frontend:** HTML, CSS, and JavaScript (no React)
+**Frontend:** HTML, CSS, and JavaScript
 
 ## Demo accounts
 
